@@ -1,0 +1,77 @@
+{
+  "name": "slideshower",
+  "productName": "Slideshower",
+  "version": "1.0.0",
+  "description": "Presentazioni automatiche di foto e video da una cartella",
+  "author": "Flavio Cecca",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "icons": "node scripts/make-icons.mjs",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win zip --x64",
+    "android:sync": "cap sync android",
+    "android:apk": "cap sync android && cd android && ./gradlew assembleDebug && cp app/build/outputs/apk/debug/app-debug.apk ../dist/Slideshower-android.apk",
+    "android:open": "cap open android",
+    "dist:win:installer": "electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.flaviocecca.slideshower",
+    "productName": "Slideshower",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "app/**/*",
+      "desktop/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.photography",
+      "icon": "build/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Slideshower-mac-${arch}.${ext}"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Slideshower-windows.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Slideshower-windows-setup.${ext}"
+    }
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "sharp": "^0.35.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carellice/slideshower.git"
+  },
+  "homepage": "https://github.com/carellice/slideshower"
+}

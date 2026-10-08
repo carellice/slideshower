@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0a12">
+  <title>Slideshower</title>
+  <link rel="icon" href="assets/logo.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" data-view="home">
+
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="dragbar" aria-hidden="true"></div>
+
+  <!-- ───────────── Home ───────────── -->
+  <main id="home">
+    <button class="icon-btn home-gear" id="homeSettings" title="Impostazioni" aria-label="Impostazioni" data-icon="sliders"></button>
+
+    <div class="hero">
+      <img class="hero-logo" src="assets/logo.svg" alt="" draggable="false">
+      <h1>Slideshower</h1>
+      <p class="tagline">Scegli una cartella. Al resto pensiamo noi.</p>
+
+      <button class="cta" id="pickBtn">
+        <span class="cta-icon" data-icon="folder"></span>
+        <span>Scegli cartella</span>
+      </button>
+      <p class="hint" id="dropHint">oppure trascina qui una cartella</p>
+
+      <div class="scan" id="scanBox" hidden>
+        <div class="spinner"></div>
+        <span id="scanText">Cerco foto e video…</span>
+      </div>
+    </div>
+
+    <section class="recents" id="recents" hidden>
+      <h2>Recenti</h2>
+      <div class="recent-list" id="recentList"></div>
+    </section>
+
+    <input type="file" id="webPicker" webkitdirectory multiple hidden>
+  </main>
+
+  <!-- ───────────── Player ───────────── -->
+  <section id="player" aria-hidden="true">
+    <div id="stage">
+      <div class="slide"></div>
+      <div class="slide"></div>
+    </div>
+
+    <div class="badge clock" id="clock"></div>
+    <div class="caption">
+      <div class="badge name" id="fileName"></div>
+      <div class="badge counter" id="counter"></div>
+    </div>
+    <div class="progress" id="progress"><i></i></div>
+
+    <div class="flash" id="flash"></div>
+
+    <div class="hud" id="hud">
+      <div class="hud-top">
+        <button class="icon-btn glass" id="exitBtn" title="Esci (Esc)" aria-label="Esci" data-icon="back"></button>
+        <div class="hud-title" id="folderName"></div>
+      </div>
+      <div class="hud-bottom">
+        <div class="pill">
+          <button class="icon-btn toggle" id="shuffleBtn" title="Casuale (R)" aria-label="Casuale" data-icon="shuffle"></button>
+          <button class="icon-btn" id="prevBtn" title="Precedente (←)" aria-label="Precedente" data-icon="prev"></button>
+          <button class="icon-btn big" id="playBtn" title="Riproduci / Pausa (Spazio)" aria-label="Riproduci o metti in pausa" data-icon="pause"></button>
+          <button class="icon-btn" id="nextBtn" title="Successivo (→)" aria-label="Successivo" data-icon="next"></button>
+          <button class="icon-btn toggle" id="loopBtn" title="Ripeti (L)" aria-label="Ripeti" data-icon="repeat"></button>
+          <span class="sep"></span>
+          <button class="icon-btn" id="muteBtn" title="Audio (M)" aria-label="Audio" data-icon="volume"></button>
+          <button class="icon-btn" id="fsBtn" title="Schermo intero (F)" aria-label="Schermo intero" data-icon="expand"></button>
+          <button class="icon-btn" id="playerSettings" title="Impostazioni (S)" aria-label="Impostazioni" data-icon="sliders"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── Impostazioni ───────────── -->
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Impostazioni">
+    <header class="drawer-head">
+      <h2>Impostazioni</h2>
+      <button class="icon-btn" id="closeDrawer" title="Chiudi" aria-label="Chiudi" data-icon="close"></button>
+    </header>
+    <div class="drawer-body" id="drawerBody"></div>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="dropzone" id="dropzone"><div><span data-icon="folder"></span>Rilascia per avviare</div></div>
+</div>
+
+<script src="js/version.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/platform.js"></script>
+<script src="js/updater.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/transitions.js"></script>
+<script src="js/player.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

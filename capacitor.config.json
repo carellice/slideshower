@@ -1,0 +1,9 @@
+{
+  "appId": "com.flaviocecca.slideshower",
+  "appName": "Slideshower",
+  "webDir": "app",
+  "backgroundColor": "#0a0a12",
+  "android": {
+    "backgroundColor": "#0a0a12"
+  }
+}
