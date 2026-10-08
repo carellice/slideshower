@@ -77,6 +77,7 @@ La versione web non ricorda le cartelle recenti e non converte le foto HEIC.
 - **Aspetto** — foto intera con sfondo sfocato o nero, oppure a tutto schermo; movimento lento sulle foto (effetto Ken Burns); barra di avanzamento, contatore, nome del file e orologio a scelta.
 - **Contenuti** — solo foto, solo video o entrambi; sottocartelle incluse o escluse.
 - **Comodità** — schermo intero, schermo sempre acceso, audio e volume dei video, riapertura dell'ultima cartella all'avvio.
+- **Introduzione al primo avvio** — una breve guida spiega come funziona l'app; puoi rivederla quando vuoi da *Impostazioni → Aiuto*.
 - **Aggiornamenti integrati** — l'app controlla da sola se esiste una versione più recente e la scarica dalle impostazioni.
 
 Ogni modifica alle impostazioni si applica subito, anche mentre la presentazione scorre.

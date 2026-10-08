@@ -194,6 +194,12 @@
 
   window.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (onboardOpen()) {
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (e.key === 'Escape') closeOnboard();
+      else if (step) { e.preventDefault(); onboardGo(onboardIndex + step); }
+      return;
+    }
     if (e.key === 'Escape') {
       if (drawerOpen()) closeDrawer();
       else if (inPlayer()) exitPlayer();
@@ -402,7 +408,7 @@
     }
     controls.push(() => visibility.forEach((fn) => fn()));
 
-    body.append(buildUpdateSection());
+    body.append(buildUpdateSection(), buildHelpSection());
 
     const foot = el('div', 'drawer-foot');
     if (Platform.kind !== 'android') {
@@ -496,6 +502,136 @@
     return sec;
   }
 
+  // ───────────── introduzione (primo avvio, rivedibile dalle impostazioni)
+  const ONBOARD_KEY = 'slideshower.onboarded.v1';
+  const onboard = $('onboard');
+  const onboardOpen = () => app.classList.contains('onboarding');
+  const onboardSeen = () => { try { return !!localStorage.getItem(ONBOARD_KEY); } catch { return true; } };
+  let onboardIndex = 0;
+  let onboardGo = () => {};
+  let onboardDone = null;      // risolve la promessa di showOnboard
+  let onboardResume = false;   // presentazione messa in pausa dall'introduzione
+
+  function buildOnboard() {
+    const touch = Platform.isTouch;
+    const slides = [
+      { logo: true, title: 'Benvenuto in Slideshower',
+        text: 'Trasforma una cartella di foto e video in una presentazione automatica, in pochi secondi.' },
+      { icon: 'folder', title: 'Scegli una cartella',
+        text: `Premi «Scegli cartella»${Platform.canDrop ? ' oppure trascinala nella finestra' : ''}: la presentazione parte da sola.`
+          + (Platform.kind === 'web' ? ' Foto e video restano sul tuo dispositivo.' : ' Le ultime cartelle restano tra i Recenti.') },
+      { icon: 'play', title: 'Comandi a portata di mano',
+        text: touch
+          ? 'Scorri a destra o a sinistra per cambiare foto, tocca lo schermo per mostrare i comandi.'
+          : 'Muovi il mouse per mostrare i comandi, fai clic per mettere in pausa e doppio clic per lo schermo intero.',
+        keys: touch ? null : [['Spazio', 'Pausa'], ['← →', 'Scorri'], ['F', 'Schermo intero'], ['Esc', 'Esci']] },
+      { icon: 'sliders', title: 'Fallo tuo',
+        text: 'Durata, ordine, transizioni e aspetto si regolano dalle impostazioni: ogni modifica si applica subito, anche mentre la presentazione scorre.' },
+    ];
+
+    const card = el('div', 'ob-card');
+    const skip = el('button', 'ob-skip', 'Salta');
+    skip.type = 'button';
+    const view = el('div', 'ob-view');
+    const track = el('div', 'ob-track');
+    const pages = slides.map((s) => {
+      const page = el('div', 'ob-slide');
+      const art = el('div', s.logo ? 'ob-art logo' : 'ob-art');
+      if (s.logo) { const img = el('img'); Object.assign(img, { src: 'assets/logo.svg', alt: '', draggable: false }); art.append(img); }
+      else art.innerHTML = Icons.svg(s.icon);
+      page.append(art, el('h2', '', s.title), el('p', '', s.text));
+      if (s.keys) {
+        const keys = el('div', 'keys');
+        s.keys.forEach(([k, d]) => { const c = el('span'); c.append(el('kbd', '', k), document.createTextNode(d)); keys.append(c); });
+        page.append(keys);
+      }
+      track.append(page);
+      return page;
+    });
+    view.append(track);
+
+    const dots = el('div', 'ob-dots');
+    const dotBtns = slides.map((s, i) => {
+      const d = el('button');
+      d.type = 'button';
+      d.setAttribute('aria-label', `Passo ${i + 1} di ${slides.length}`);
+      d.addEventListener('click', () => onboardGo(i));
+      dots.append(d);
+      return d;
+    });
+
+    const nav = el('div', 'ob-nav');
+    const back = el('button', 'ghost', 'Indietro');
+    back.type = 'button';
+    const next = el('button', 'ob-next');
+    next.type = 'button';
+    nav.append(back, next);
+    card.append(skip, view, dots, nav);
+    onboard.append(card);
+
+    onboardGo = (i) => {
+      if (i >= slides.length) { closeOnboard(); return; }
+      onboardIndex = Math.max(0, i);
+      track.style.transform = `translateX(${-onboardIndex * 100}%)`;
+      pages.forEach((p, j) => { p.classList.toggle('on', j === onboardIndex); p.setAttribute('aria-hidden', String(j !== onboardIndex)); });
+      dotBtns.forEach((d, j) => d.setAttribute('aria-current', String(j === onboardIndex)));
+      back.classList.toggle('off', !onboardIndex);
+      next.textContent = onboardIndex === slides.length - 1 ? 'Inizia' : 'Avanti';
+    };
+    skip.addEventListener('click', closeOnboard);
+    back.addEventListener('click', () => onboardGo(onboardIndex - 1));
+    next.addEventListener('click', () => onboardGo(onboardIndex + 1));
+
+    let start = null;
+    view.addEventListener('pointerdown', (e) => { start = { x: e.clientX, y: e.clientY }; });
+    view.addEventListener('pointerup', (e) => {
+      if (!start) return;
+      const dx = e.clientX - start.x, dy = e.clientY - start.y;
+      start = null;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) onboardGo(onboardIndex + (dx < 0 ? 1 : -1));
+    });
+    view.addEventListener('pointercancel', () => { start = null; });
+  }
+
+  function showOnboard() {
+    if (onboardOpen()) return Promise.resolve();
+    closeDrawer();
+    onboardResume = inPlayer() && Player.state.playing;
+    if (onboardResume) Player.toggle();
+    onboardGo(0);
+    app.classList.add('onboarding');
+    onboard.setAttribute('aria-hidden', 'false');
+    onboard.querySelector('.ob-next').focus({ preventScroll: true });
+    return new Promise((resolve) => { onboardDone = resolve; });
+  }
+
+  function closeOnboard() {
+    if (!onboardOpen()) return;
+    app.classList.remove('onboarding');
+    onboard.setAttribute('aria-hidden', 'true');
+    if (onboard.contains(document.activeElement)) document.activeElement.blur();
+    try { localStorage.setItem(ONBOARD_KEY, '1'); } catch {}
+    if (onboardResume && inPlayer() && !Player.state.playing) Player.toggle();
+    onboardResume = false;
+    if (onboardDone) { onboardDone(); onboardDone = null; }
+  }
+
+  function buildHelpSection() {
+    const sec = el('section', 'group');
+    sec.append(el('h3', '', 'Aiuto'));
+    const card = el('div', 'card');
+    const row = el('div', 'row update');
+    const text = el('span', 'row-text');
+    text.append(el('span', '', 'Introduzione'), el('small', '', 'La guida mostrata al primo avvio'));
+    const btn = el('button', 'pill-btn', 'Rivedi');
+    btn.type = 'button';
+    btn.addEventListener('click', showOnboard);
+    row.append(text, btn);
+    card.append(row);
+    sec.append(card);
+    return sec;
+  }
+
   // ───────────── trascinamento (desktop)
   if (Platform.canDrop) {
     let depth = 0;
@@ -509,6 +645,7 @@
       app.classList.remove('dragging');
       const f = await Platform.folderFromDrop(e.dataTransfer);
       if (!f) return;
+      closeOnboard();
       if (inPlayer()) exitPlayer();
       openFolder(f);
     });
@@ -518,13 +655,15 @@
 
   // ───────────── tasto indietro (Android)
   Platform.onBack(() => {
-    if (drawerOpen()) closeDrawer();
+    if (onboardOpen()) closeOnboard();
+    else if (drawerOpen()) closeDrawer();
     else if (inPlayer()) exitPlayer();
     else Platform.exitApp();
   });
 
   // ───────────── avvio
   buildDrawer();
+  buildOnboard();
   refreshControls();
   syncToggles();
   renderRecents();
@@ -534,6 +673,7 @@
   (async () => {
     const initial = await Platform.initialFolder();
     if (initial) return openFolder(initial);
+    if (!onboardSeen()) await showOnboard();
     const last = readRecents()[0];
     if (S.get('resumeLast') && last) openFolder({ id: last.id, name: last.name });
   })();
