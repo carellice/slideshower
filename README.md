@@ -37,13 +37,27 @@ Tutte le versioni: [pagina delle release](https://github.com/carellice/slideshow
 <summary><b>Mac</b></summary>
 
 1. Apri il file `.dmg` e trascina **Slideshower** nella cartella **Applicazioni**.
-2. Al primo avvio macOS potrebbe bloccare l'app perché non è firmata con un certificato Apple.
-   Vai in **Impostazioni di Sistema → Privacy e sicurezza** e premi **Apri comunque**, oppure esegui nel Terminale:
+2. Apri il **Terminale** ed esegui questo comando (vedi la nota qui sotto):
 
    ```bash
    xattr -cr /Applications/Slideshower.app
    ```
+3. Avvia Slideshower dalla cartella Applicazioni.
 </details>
+
+> [!IMPORTANT]
+> **Mac: «Slideshower è danneggiato e non può essere aperto»**
+>
+> L'app non è danneggiata: non è firmata con un certificato Apple a pagamento, quindi macOS blocca la copia scaricata da Internet.
+> Dopo averla trascinata in Applicazioni, apri il **Terminale** ed esegui una volta:
+>
+> ```bash
+> xattr -cr /Applications/Slideshower.app
+> ```
+>
+> Il comando toglie il contrassegno di "quarantena" che macOS applica ai file scaricati; non serve la password.
+> Va ripetuto dopo ogni aggiornamento. Se tieni l'app in un'altra cartella, adatta il percorso.
+> Sui Mac Intel, se compare «impossibile verificare lo sviluppatore», puoi anche andare in **Impostazioni di Sistema → Privacy e sicurezza** e premere **Apri comunque**.
 
 <details>
 <summary><b>Windows</b></summary>
@@ -113,7 +127,7 @@ Su Android: **scorri** a destra o sinistra per cambiare, **tocca** per mostrare 
 In **Impostazioni → Aggiornamenti** trovi la versione installata e il pulsante **Controlla**.
 Se esiste una versione più recente compare **Scarica e installa** (e un puntino sull'icona delle impostazioni):
 
-- **Mac** — scarica il `.dmg` nella cartella Download e lo apre: trascina l'app in Applicazioni sostituendo la precedente.
+- **Mac** — scarica il `.dmg` nella cartella Download e lo apre: trascina l'app in Applicazioni sostituendo la precedente. Poi esegui di nuovo il comando `xattr` indicato in [Come si installa](#come-si-installa).
 - **Windows** — scarica lo zip nella cartella Download: estrailo sopra la versione precedente.
 - **Android** — scarica l'`.apk` e apre l'installazione di sistema.
 
